@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# If there is a global system configuration file, suck it in.
+#
+if [ -r /etc/defaults/periodic.conf ]
+then
+    . /etc/defaults/periodic.conf
+    source_periodic_confs
+fi
+
+pools=$daily_zfs_snapshot_pools
+if [ -z "$pools" ]; then
+    pools='tank'
+fi
+
+keep=$daily_zfs_snapshot_keep
+if [ -z "$keep" ]; then
+    keep=7
+fi
+
+case "$daily_zfs_snapshot_enable" in
+    [Yy][Ee][Ss])
+        . /etc/periodic/zfs-snapshot
+        do_snapshots "$pools" $keep 'daily'
+        ;;
+    *)
+        ;; 
+esac
