@@ -5,7 +5,7 @@ scrub_in_progress()
 {
   pool=$1
 
-  if zpool status $pool | grep "scrub in progress" > /dev/null; then
+  if zpool status `echo $pool | awk -F "/" '{print $1}'` | grep "scrub in progress" > /dev/null; then
     return 0
   else
     return 1
