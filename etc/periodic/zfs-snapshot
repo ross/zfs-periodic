@@ -4,12 +4,8 @@
 scrub_in_progress()
 {
   pool=$1
-
-  if zpool status `echo $pool | awk -F "/" '{print $1}'` | grep "scrub in progress" > /dev/null; then
-    return 0
-  else
-    return 1
-  fi
+  zpool status $(echo $pool | awk -F "/" '{print $1}') | grep "scrub in progress" > /dev/null
+  return $?
 }
 
 # take the appropriately named snapshot
