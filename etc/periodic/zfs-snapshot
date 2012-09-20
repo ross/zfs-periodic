@@ -4,12 +4,8 @@
 scrub_in_progress()
 {
   pool=$1
-
-  if zpool status `echo $pool | awk -F "/" '{print $1}'` | grep "scrub in progress" > /dev/null; then
-    return 0
-  else
-    return 1
-  fi
+  zpool status $(echo $pool | awk -F "/" '{print $1}') | grep "scrub in progress" > /dev/null
+  return $?
 }
 
 # take the appropriately named snapshot
@@ -35,15 +31,25 @@ create_snapshot()
         exit 1
     esac
 
-    # create the now snapshot
-    snapshot="$pool@$now"
-    # look for a snapshot with this name
-    if zfs list -H -o name -t snapshot | sort | grep "$snapshot$" > /dev/null; then
-        echo "	snapshot, $snapshot, already exists"
+    # enumerate datasets under this pool or dataset, skip excluded datasets if requested
+    if [ -n "$skip" ]; then
+            egrep="($(echo $skip | sed "s/ /|/g"))"
+            datasets=$(zfs list -r -H -o name $pool | egrep -v "$egrep")
     else
-        echo "	taking snapshot, $snapshot"
-        zfs snapshot -r $snapshot
+	    datasets=$(zfs list -r -H -o name $pool)
     fi
+
+    # loop through datasets, do snapshots of each
+    for dataset in $datasets; do
+        snapshot="$dataset@$now"
+        # look for an existing snapshot with this name
+        if zfs list $snapshot > /dev/null 2>&1; then
+            echo "     snapshot $snapshot already exists, skipping..."
+        else
+            echo "     taking snapshot: $snapshot"
+            zfs snapshot $snapshot
+        fi
+    done
 }
 
 # delete the named snapshot
@@ -60,6 +66,7 @@ do_pool()
     pool=$1
     keep=$2
     type=$3
+    skip=$4
 
     # create the regex matching the type of snapshots we're currently working 
     # on
@@ -114,6 +121,7 @@ do_snapshots()
     pools=$1
     keep=$2
     type=$3
+    skip=$4
 
     echo ""
     echo "Doing zfs $type snapshots:"
@@ -121,7 +129,7 @@ do_snapshots()
         if scrub_in_progress $pool; then
           echo "	skipping snapshot of $pool, scrub in progress"
         else
-          do_pool $pool $keep $type
+          do_pool $pool $keep $type "$skip"
         fi
     done
 }
