@@ -18,7 +18,7 @@ if [ -z "$keep" ]; then
     keep=7
 fi
 
-case "$daily_zfs_snapshot_enable" in
+case "$weekly_zfs_snapshot_enable" in
     [Yy][Ee][Ss])
         . /etc/periodic/zfs-snapshot
         do_snapshots "$pools" $keep 'weekly' "$weekly_zfs_snapshot_skip"
