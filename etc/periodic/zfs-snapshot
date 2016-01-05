@@ -18,6 +18,9 @@ create_snapshot()
         monthly)
         now=`date +"$type-%Y-%m"`
         ;;
+        yearly)
+        now=`date +"$type-%Y"`
+        ;;
         *)
         echo "unknown snapshot type: $type"
         exit 1
@@ -78,6 +81,10 @@ do_pool()
         monthly)
         # monthly-2009-01
         regex="^$pool@$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]"
+        ;;
+        yearly)
+        # yearly-2009
+        regex="^$pool@$type-[0-9][0-9][0-9][0-9]"
         ;;
         *)
         echo "unknown snapshot type: $type"
