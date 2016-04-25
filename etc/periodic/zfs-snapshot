@@ -52,6 +52,11 @@ delete_snapshot()
 {
     snapshot=$1
     echo "     destroying old snapshot, $snapshot"
+    if ! echo $snapshot | grep -q @; then
+        # refuse to destroy something that doesn't look like a snapshot
+        echo >&2 "     aborting: not a snapshot: $snapshot"
+        exit 1
+    fi
     zfs destroy -r $snapshot
 }
 
