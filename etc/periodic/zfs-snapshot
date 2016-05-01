@@ -31,7 +31,7 @@ create_snapshot()
             egrep="($(echo $skip | sed "s/ /|/g"))"
             datasets=$(zfs list -r -H -o name $pool | egrep -v "$egrep")
     else
-	    datasets=$(zfs list -r -H -o name $pool)
+            datasets=$(zfs list -r -H -o name $pool)
     fi
 
     # loop through datasets, do snapshots of each
@@ -51,7 +51,7 @@ create_snapshot()
 delete_snapshot()
 {
     snapshot=$1
-    echo "	destroying old snapshot, $snapshot"
+    echo "     destroying old snapshot, $snapshot"
     zfs destroy -r $snapshot
 }
 
@@ -63,7 +63,7 @@ do_pool()
     type=$3
     skip=$4
 
-    # create the regex matching the type of snapshots we're currently working 
+    # create the regex matching the type of snapshots we're currently working
     # on
     case "$type" in
         hourly)
@@ -114,7 +114,7 @@ do_pool()
     fi
 }
 
-# take snapshots of type, for pools, keeping keep old ones, 
+# take snapshots of type, for pools, keeping keep old ones,
 do_snapshots()
 {
     pools=$1
