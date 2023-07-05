@@ -6,6 +6,9 @@ create_snapshot()
     pool=$1
 
     case "$type" in
+        quarter_hourly)
+        now=`date +"$type-%Y-%m-%d-%H-%M"`
+        ;;
         hourly)
         now=`date +"$type-%Y-%m-%d-%H"`
         ;;
@@ -71,6 +74,10 @@ do_pool()
     # create the regex matching the type of snapshots we're currently working
     # on
     case "$type" in
+        quarter_hourly)
+        # quarter_hourly-2009-01-01-00-15
+        regex="^$pool@$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]$"
+        ;;
         hourly)
         # hourly-2009-01-01-00
         regex="^$pool@$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]$"
