@@ -7,22 +7,22 @@ create_snapshot()
 
     case "$type" in
         quarter_hourly)
-        now=`date +"$type-%Y-%m-%d-%H-%M"`
+        now=$(date +"$type-%Y-%m-%d-%H-%M")
         ;;
         hourly)
-        now=`date +"$type-%Y-%m-%d-%H"`
+        now=$(date +"$type-%Y-%m-%d-%H")
         ;;
         daily)
-        now=`date +"$type-%Y-%m-%d"`
+        now=$(date +"$type-%Y-%m-%d")
         ;;
         weekly)
-        now=`date +"$type-%Y-%U"`
+        now=$(date +"$type-%Y-%U")
         ;;
         monthly)
-        now=`date +"$type-%Y-%m"`
+        now=$(date +"$type-%Y-%m")
         ;;
         yearly)
-        now=`date +"$type-%Y"`
+        now=$(date +"$type-%Y")
         ;;
         *)
         echo "unknown snapshot type: $type"
@@ -31,10 +31,10 @@ create_snapshot()
 
     # enumerate datasets under this pool or dataset, skip excluded datasets if requested
     if [ -n "$skip" ]; then
-            egrep="($(echo $skip | sed "s/ /|/g"))"
-            datasets=$(zfs list -r -H -o name $pool | egrep -v "$egrep")
+            egrep="($(echo "$skip" | sed "s/ /|/g"))"
+            datasets=$(zfs list -r -H -o name "$pool" | grep -E -v "$egrep")
     else
-            datasets=$(zfs list -r -H -o name $pool)
+            datasets=$(zfs list -r -H -o name "$pool")
     fi
 
     # loop through datasets, do snapshots of each
@@ -103,25 +103,25 @@ do_pool()
         exit 1
     esac
 
-    create_snapshot $pool $type
+    create_snapshot "$pool" "$type"
 
     # get a list of all of the snapshots of this type sorted alpha, which
     # effectively is increasing date/time
     # (using sort as zfs's sort seems to have bugs)
-    snapshots=`zfs list -H -o name -t snapshot | sort | grep $regex`
+    snapshots=$(zfs list -H -o name -t snapshot | sort | grep "$regex")
     # count them
-    count=`printf "%s" "$snapshots" | wc -l`
-    if [ $count -ge 0 ]; then
+    count=$(printf "%s" "$snapshots" | wc -l)
+    if [ "$count" -ge 0 ]; then
         # how many items should we delete
-        delete=`expr $count - $keep`
+        delete=$(("$count" - "$keep"))
         count=0
         # walk through the snapshots, deleting them until we've trimmed deleted
         printf "%s" "${snapshots}" | while IFS= read -r snapshot; do
-            if [ $count -ge $delete ]; then
+            if [ "$count" -ge "$delete" ]; then
                 break
             fi
             delete_snapshot "$snapshot"
-            count=`expr $count + 1`
+            count=$(("$count" + 1))
         done
     fi
 }
@@ -137,6 +137,6 @@ do_snapshots()
     echo ""
     echo "Doing zfs $type snapshots:"
     for pool in $pools; do
-        do_pool $pool $keep $type "$skip"
+        do_pool "$pool" "$keep" "$type" "$skip"
     done
 }
