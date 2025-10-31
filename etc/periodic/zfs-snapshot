@@ -32,9 +32,9 @@ create_snapshot()
     # enumerate datasets under this pool or dataset, skip excluded datasets if requested
     if [ -n "$skip" ]; then
             egrep="($(echo "$skip" | sed "s/ /|/g"))"
-            datasets=$(zfs list -r -H -o name "$pool" | grep -E -v "$egrep")
+            datasets=$(zfs list -t filesystem -r -H -o name "$pool" | grep -E -v "$egrep")
     else
-            datasets=$(zfs list -r -H -o name "$pool")
+            datasets=$(zfs list -t filesystem -r -H -o name "$pool")
     fi
 
     # loop through datasets, do snapshots of each
